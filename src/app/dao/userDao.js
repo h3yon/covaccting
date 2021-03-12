@@ -65,7 +65,7 @@ async function insertUserInfo(insertUserInfoParams) {
     return res.json({
       isSuccess: false,
       code: 4000,
-      message: "userNicknameCheck query error",
+      message: "insertUserInfo query error",
     });
   }
 }
@@ -92,7 +92,7 @@ async function login(userEmail, hashedPassword) {
       return {
         isSuccess: false,
         code: 2008,
-        message: "비밀번호를 확인해주세요.",
+        message: "비밀번호를 확인해주세요",
       };
     } else {
       return userInfoRows;

@@ -91,7 +91,7 @@ exports.signUp = async function (req, res) {
     if (regexUrl.test(userProfileImgLink) == false) {
       return res.json({
         isSuccess: false,
-        code: 2009,
+        code: 2012,
         message: "프로필 이미지 링크가 올바른 링크 형식이 아닙니다",
       });
     }
