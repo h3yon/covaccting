@@ -177,12 +177,27 @@ exports.login = async function (req, res) {
       .update(userPassword)
       .digest("hex");
 
+    const userEmailCheckComplete = await userDao.userEmailCheck(userEmail);
+    if (userEmailCheckComplete.isSuccess == false)
+      return userEmailCheckComplete;
+    if (!userEmailCheckComplete || userEmailCheckComplete.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2001,
+        message: "이메일을 확인해주세요",
+      });
+
     // 로그인
     const loginComplete = await userDao.login(userEmail, hashedPassword);
-
-    console.log("aaaaaaabbcc");
-
     if (loginComplete.isSuccess == false) return loginComplete;
+
+    if (loginComplete[0].userPassword !== hashedPassword) {
+      return {
+        isSuccess: false,
+        code: 2008,
+        message: "비밀번호를 확인해주세요",
+      };
+    }
 
     // 토큰 생성
     let token = await jwt.sign(
