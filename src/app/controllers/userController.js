@@ -130,7 +130,7 @@ exports.signUp = async function (req, res) {
   // 토큰 생성
   return res.json({
     isSuccess: true,
-    code: 200,
+    code: 1000,
     message: "회원가입 성공",
     userIdx: finalUserIdx[0].userIdx,
     jwt: token,
@@ -204,7 +204,7 @@ exports.login = async function (req, res) {
 
     return res.json({
       isSuccess: true,
-      code: 2000,
+      code: 1000,
       message: "로그인 성공",
       userIdx: loginComplete[0].userIdx,
       jwt: token,
