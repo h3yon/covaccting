@@ -228,3 +228,38 @@ exports.login = async function (req, res) {
     return res.json({ isSuccess: false, code: 2000, message: "로그인 실패" });
   }
 };
+
+// 마이페이지 조회
+exports.getmypage = async function (req, res) {
+  try {
+    console.log(req.verifiedToken);
+    var userIdx = req.verifiedToken.userIdx;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const getmypageRows = await userDao.getmypage(userIdx);
+
+    if (getmypageRows.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "오늘의 챌린지 조회 성공",
+        result: getmypageRows,
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "오늘의 챌린지 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};

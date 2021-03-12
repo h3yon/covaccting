@@ -8,5 +8,7 @@ module.exports = function (app) {
   app.post("/users/login", user.login);
   app.post("/users/signup", user.signUp);
 
+  //마이페이지 조회
+  app.get("/users/my-page", jwtMiddleware, user.getmypage);
   //   app.get("/check", jwtMiddleware, user.check);
 };
