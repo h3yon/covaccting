@@ -232,7 +232,6 @@ exports.login = async function (req, res) {
 // 마이페이지 조회
 exports.getmypage = async function (req, res) {
   try {
-    console.log(req.verifiedToken);
     var userIdx = req.verifiedToken.userIdx;
 
     const userRows = await userDao.getuser(userIdx);
@@ -249,14 +248,102 @@ exports.getmypage = async function (req, res) {
       return res.json({
         isSuccess: true,
         code: 1000,
-        message: "오늘의 챌린지 조회 성공",
+        message: "마이페이지 조회 성공",
         result: getmypageRows,
       });
     } else
       return res.json({
         isSuccess: false,
         code: 2000,
-        message: "오늘의 챌린지 조회 실패",
+        message: "마이페이지 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+
+// 프로필 관리 조회
+exports.getprofile = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const getprofileRows = await userDao.getprofile(userIdx);
+
+    if (getprofileRows.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "프로필 관리 조회 성공",
+        result: getprofileRows,
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "프로필 관리 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+
+// 프로필 관리 수정
+exports.patchprofile = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+
+    var { userNickname, userEmail, userProfileImgLink } = req.body;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    if (!userNickname) {
+      return res.json({
+        isSuccess: false,
+        code: 2010,
+        message: "닉네임을 입력해주세요.",
+      });
+    } else if (!userEmail) {
+      return res.json({
+        isSuccess: false,
+        code: 2011,
+        message: "이메일을 입력해주세요.",
+      });
+    }
+
+    const patchprofileRows = await userDao.patchprofile(
+      userIdx,
+      userNickname,
+      userEmail,
+      userProfileImgLink
+    );
+
+    if (patchprofileRows.changedRows === 1) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "프로필 관리 수정 성공",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "프로필 관리 수정 실패",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);

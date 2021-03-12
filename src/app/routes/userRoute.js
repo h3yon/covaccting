@@ -10,5 +10,9 @@ module.exports = function (app) {
 
   //마이페이지 조회
   app.get("/users/my-page", jwtMiddleware, user.getmypage);
+  //프로필 관리 조회
+  app.get("/users", jwtMiddleware, user.getprofile);
+  //프로필 관리 수정
+  app.patch("/users", jwtMiddleware, user.patchprofile);
   //   app.get("/check", jwtMiddleware, user.check);
 };
