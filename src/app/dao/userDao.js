@@ -124,6 +124,40 @@ where userIdx = ${userIdx};
   return Rows;
 }
 
+// 프로필 관리 조회
+async function getprofile(userIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmypageQuery = `
+  select userNickname, userEmail, userProfileImgLink
+from User
+where userIdx = ${userIdx};
+`;
+
+  const [Rows] = await connection.query(getmypageQuery);
+  connection.release();
+
+  return Rows;
+}
+
+// 프로필 관리 수정
+async function patchprofile(
+  userIdx,
+  userNickname,
+  userEmail,
+  userProfileImgLink
+) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmypageQuery = `
+  update User
+  set userNickname = '${userNickname}', userEmail = '${userEmail}', userProfileImgLink = '${userProfileImgLink}'
+  where userIdx = ${userIdx};
+`;
+
+  const [Rows] = await connection.query(getmypageQuery);
+  connection.release();
+
+  return Rows;
+}
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
@@ -131,4 +165,6 @@ module.exports = {
   login,
   getuser,
   getmypage,
+  getprofile,
+  patchprofile,
 };
