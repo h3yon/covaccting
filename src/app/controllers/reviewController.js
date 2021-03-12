@@ -141,6 +141,14 @@ exports.getDetailReview = async function (req, res) {
   const token = req.verifiedToken;
   const reviewIdx = req.params.reviewIdx;
 
+  console.log(token.userIdx, reviewIdx);
+  if (!reviewIdx)
+    return res.json({
+      isSuccess: false,
+      code: 2002,
+      message: "리뷰 인덱스를 입력해주세요",
+    });
+
   try {
     const userCheckResult = await reviewDao.userCheck(token.userIdx);
     if (userCheckResult.isSuccess == false) return userCheckResult;
@@ -159,7 +167,7 @@ exports.getDetailReview = async function (req, res) {
     if (!selectDetailReviewResult || selectDetailReviewResult.length < 1)
       return res.json({
         isSuccess: false,
-        code: 2100,
+        code: 2001,
         message: "존재하지 않는 리뷰입니다",
       });
     return res.json({
