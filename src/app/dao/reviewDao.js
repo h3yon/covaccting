@@ -25,18 +25,13 @@ async function userCheck(userIdx) {
 }
 
 // 후기 작성
-async function insertReview(userIdx, reviewName, reviewContent, vaccineName) {
+async function insertReview(userIdx, eviewContent, vaccineName) {
   const connection = await pool.getConnection(async (conn) => conn);
   try {
     const insertReviewQuery = `
-        insert Review(userIdx, reviewName, reviewContent, vaccineName) values (?, ?, ?, ?);
+        insert Review(userIdx, reviewContent, vaccineName) values (?, ?, ?, ?);
                   `;
-    const insertReviewParams = [
-      userIdx,
-      reviewName,
-      reviewContent,
-      vaccineName,
-    ];
+    const insertReviewParams = [userIdx, reviewContent, vaccineName];
     const [insertReviewRows] = await connection.query(
       insertReviewQuery,
       insertReviewParams
