@@ -65,7 +65,7 @@ async function insertUserInfo(insertUserInfoParams) {
     return res.json({
       isSuccess: false,
       code: 4000,
-      message: "userNicknameCheck query error",
+      message: "insertUserInfo query error",
     });
   }
 }
@@ -79,24 +79,7 @@ async function login(userEmail, hashedPassword) {
             WHERE userEmail = ? and userPassword = ? and status = 1`;
     let loginParams = [userEmail, hashedPassword];
     const [userInfoRows] = await connection.query(loginQuery, loginParams);
-    if (userInfoRows.length < 1) {
-      connection.release();
-      return {
-        isSuccess: false,
-        code: 2007,
-        message: "존재하지 않는 이메일이거나 탈퇴된 회원입니다",
-      };
-    }
-    if (userInfoRows[0].userPassword !== hashedPassword) {
-      connection.release();
-      return {
-        isSuccess: false,
-        code: 2008,
-        message: "비밀번호를 확인해주세요.",
-      };
-    } else {
-      return userInfoRows;
-    }
+    return userInfoRows;
   } catch (err) {
     connection.release();
     return {

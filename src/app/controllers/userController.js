@@ -91,7 +91,7 @@ exports.signUp = async function (req, res) {
     if (regexUrl.test(userProfileImgLink) == false) {
       return res.json({
         isSuccess: false,
-        code: 2009,
+        code: 2012,
         message: "프로필 이미지 링크가 올바른 링크 형식이 아닙니다",
       });
     }
@@ -130,7 +130,7 @@ exports.signUp = async function (req, res) {
   // 토큰 생성
   return res.json({
     isSuccess: true,
-    code: 200,
+    code: 1000,
     message: "회원가입 성공",
     userIdx: finalUserIdx[0].userIdx,
     jwt: token,
@@ -177,12 +177,27 @@ exports.login = async function (req, res) {
       .update(userPassword)
       .digest("hex");
 
+    const userEmailCheckComplete = await userDao.userEmailCheck(userEmail);
+    if (userEmailCheckComplete.isSuccess == false)
+      return userEmailCheckComplete;
+    if (!userEmailCheckComplete || userEmailCheckComplete.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2001,
+        message: "이메일을 확인해주세요",
+      });
+
     // 로그인
     const loginComplete = await userDao.login(userEmail, hashedPassword);
-
-    console.log("aaaaaaabbcc");
-
     if (loginComplete.isSuccess == false) return loginComplete;
+
+    if (loginComplete[0].userPassword !== hashedPassword) {
+      return {
+        isSuccess: false,
+        code: 2008,
+        message: "비밀번호를 확인해주세요",
+      };
+    }
 
     // 토큰 생성
     let token = await jwt.sign(
@@ -204,7 +219,7 @@ exports.login = async function (req, res) {
 
     return res.json({
       isSuccess: true,
-      code: 2000,
+      code: 1000,
       message: "로그인 성공",
       userIdx: loginComplete[0].userIdx,
       jwt: token,
