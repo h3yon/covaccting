@@ -55,15 +55,15 @@ exports.addReview = async function (req, res) {
     return res.json({
       isSuccess: true,
       code: 1000,
-      message: "후기 작성 성공",
       userIdx: token.userIdx,
+      message: "후기 작성 성공",
     });
   } catch (error) {
     return res.json({
       isSuccess: false,
       code: 2000,
-      message: "후기 작성 실패",
       userIdx: token.userIdx,
+      message: "후기 작성 실패",
     });
   }
 };
