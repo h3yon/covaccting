@@ -179,6 +179,9 @@ exports.login = async function (req, res) {
 
     // 로그인
     const loginComplete = await userDao.login(userEmail, hashedPassword);
+
+    console.log("aaaaaaabbcc");
+
     if (loginComplete.isSuccess == false) return loginComplete;
 
     // 토큰 생성
