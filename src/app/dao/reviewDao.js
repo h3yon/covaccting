@@ -268,10 +268,69 @@ async function selectDetailReview(userIdx, reviewIdx) {
   }
 }
 
+// 후기 수정
+async function updateReview(reviewContent, vaccineName, reviewIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const updateReviewQuery = `
+    update Review set
+    reviewContent = IFNULL(?, (select reviewContent where reviewIdx = ?)),
+    vaccineName = IFNULL(?, (select vaccineName where reviewIdx = ?)),
+    updatedAt = now() where reviewIdx = ? and status = 1;
+                  `;
+    const updateReviewParams = [
+      reviewContent,
+      reviewIdx,
+      vaccineName,
+      reviewIdx,
+      reviewIdx,
+    ];
+    const [updateReviewRows] = await connection.query(
+      updateReviewQuery,
+      updateReviewParams
+    );
+    connection.release();
+    return { isSuccess: true };
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "updateReview query error",
+    });
+  }
+}
+
+// 후기 체크
+async function checkReview(reviewIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const checkReviewQuery = `
+    select reviewIdx, userIdx from Review where reviewIdx = ? and status = 1;
+                  `;
+    const checkReviewParams = [reviewIdx];
+    const [checkReviewRows] = await connection.query(
+      checkReviewQuery,
+      checkReviewParams
+    );
+    connection.release();
+    return checkReviewRows;
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "checkReview query error",
+    });
+  }
+}
+
 module.exports = {
   userCheck,
   insertReview,
   selectReviewCreate,
   selectReviewLike,
   selectDetailReview,
+  checkReview,
+  updateReview,
 };
