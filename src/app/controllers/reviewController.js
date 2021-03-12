@@ -136,3 +136,45 @@ exports.getReview = async function (req, res) {
     });
   }
 };
+
+exports.getDetailReview = async function (req, res) {
+  const token = req.verifiedToken;
+  const reviewIdx = req.params.reviewIdx;
+
+  try {
+    const userCheckResult = await reviewDao.userCheck(token.userIdx);
+    if (userCheckResult.isSuccess == false) return userCheckResult;
+    if (!userCheckResult || userCheckResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "탈퇴하거나 비활성화된 유저입니다",
+      });
+    const selectDetailReviewResult = await reviewDao.selectDetailReview(
+      token.userIdx,
+      reviewIdx
+    );
+    if (selectDetailReviewResult.isSuccess == false)
+      return selectDetailReviewResult;
+    if (!selectDetailReviewResult || selectDetailReviewResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "존재하지 않는 리뷰입니다",
+      });
+    return res.json({
+      isSuccess: true,
+      code: 1000,
+      userIdx: token.userIdx,
+      message: "리뷰 상세 조회 성공",
+      result: selectDetailReviewResult,
+    });
+  } catch (error) {
+    return res.json({
+      isSuccess: false,
+      code: 2000,
+      userIdx: token.userIdx,
+      message: "리뷰 상세 조회 실패",
+    });
+  }
+};
