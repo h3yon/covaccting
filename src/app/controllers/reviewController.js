@@ -11,15 +11,8 @@ const { constants } = require("buffer");
 
 exports.addReview = async function (req, res) {
   const token = req.verifiedToken;
-  const { reviewName, reviewContent, vaccineName } = req.body;
+  const { reviewContent, vaccineName } = req.body;
 
-  if (!reviewName) {
-    return res.json({
-      isSuccess: false,
-      code: 2001,
-      message: "후기 제목을 입력해주세요",
-    });
-  }
   if (!reviewContent) {
     return res.json({
       isSuccess: false,
@@ -47,7 +40,6 @@ exports.addReview = async function (req, res) {
 
     const addReviewResult = await reviewDao.insertReview(
       token.userIdx,
-      reviewName,
       reviewContent,
       vaccineName
     );
