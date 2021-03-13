@@ -158,6 +158,25 @@ async function patchprofile(
 
   return Rows;
 }
+// 내 접종기록 수정
+async function patchinoculation(
+  userIdx,
+  userInoculation,
+  userFirstDate,
+  userSecondDate
+) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmypageQuery = `
+  update User
+  set userInoculation = '${userInoculation}', userFirstDate = '${userFirstDate}', userSecondDate = '${userSecondDate}'
+  where userIdx = ${userIdx};
+`;
+
+  const [Rows] = await connection.query(getmypageQuery);
+  connection.release();
+
+  return Rows;
+}
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
@@ -167,4 +186,5 @@ module.exports = {
   getmypage,
   getprofile,
   patchprofile,
+  patchinoculation,
 };

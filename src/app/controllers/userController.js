@@ -8,6 +8,7 @@ const secret_config = require("../../../config/secret");
 
 const userDao = require("../dao/userDao");
 const { constants } = require("buffer");
+var moment = require("moment");
 
 /**
  update : 2020.10.4
@@ -344,6 +345,93 @@ exports.patchprofile = async function (req, res) {
         isSuccess: false,
         code: 2000,
         message: "프로필 관리 수정 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+// 내 접종기록 수정
+exports.patchinoculation = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+
+    var { userInoculation, userFirstDate, userSecondDate } = req.body;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    if (!userInoculation) {
+      return res.json({
+        isSuccess: false,
+        code: 2020,
+        message: "1차 접종일을 입력해주세요.",
+      });
+    } else if (!userFirstDate) {
+      return res.json({
+        isSuccess: false,
+        code: 2021,
+        message: "백신을 입력해주세요.",
+      });
+    }
+
+    if (
+      userInoculation !== "화이자" &&
+      userInoculation !== "모더나" &&
+      userInoculation !== "아스트라제네카" &&
+      userInoculation !== "얀센"
+    ) {
+      return res.json({
+        isSuccess: false,
+        code: 2022,
+        message: "백신종류를 정확하게 입력해주세요.",
+      });
+    }
+    var userFirstDate1 = moment(userFirstDate, "YYYY.MM.DD");
+
+    if (!userSecondDate) {
+      if (userInoculation === "화이자") {
+        userFirstDate1.add(21, "d");
+        userSecondDate = userFirstDate1.format("YYYY-MM-DD");
+      } else if (userInoculation === "모더나") {
+        userFirstDate1.add(28, "d");
+        userSecondDate = userFirstDate1.format("YYYY-MM-DD");
+      } else if (userInoculation === "아스트라제네카") {
+        userFirstDate1.add(56, "d");
+        userSecondDate = userFirstDate1.format("YYYY-MM-DD");
+      }
+    }
+    console.log(userSecondDate);
+
+    const patchinoculationRows = await userDao.patchinoculation(
+      userIdx,
+      userInoculation,
+      userFirstDate,
+      userSecondDate
+    );
+
+    if (patchinoculationRows.changedRows === 1) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "내 접종 수정 성공",
+      });
+    } else if (patchinoculationRows.changedRows === 0) {
+      return res.json({
+        isSuccess: true,
+        code: 2001,
+        message: "수정 내용을 입력해주세요.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "내 접종 수정 실패",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
