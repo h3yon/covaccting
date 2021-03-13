@@ -367,9 +367,13 @@ exports.likeReview = async function (req, res) {
     checkLikeResult = await reviewDao.checkLike(token.userIdx, reviewIdx);
     if (checkLikeResult.isSuccess == false) return checkLikeResult;
 
-    console.log(checkLikeResult, checkLikeResult[0].status);
+    console.log("checkLikeResult", checkLikeResult);
 
-    if (checkLikeResult[0].status == 1) {
+    if (
+      !checkLikeResult ||
+      checkLikeResult.length < 1 ||
+      checkLikeResult[0].status == 1
+    ) {
       //like 취소할 때: 정보가 없을 때, 1일 때
       const likeResult = await reviewDao.likeReview(
         token.userIdx,
@@ -416,6 +420,7 @@ exports.likeReview = async function (req, res) {
       });
     }
   } catch (error) {
+    console.log(error);
     return res.json({
       isSuccess: false,
       code: 2000,
