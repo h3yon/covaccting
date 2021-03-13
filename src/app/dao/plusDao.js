@@ -28,8 +28,10 @@ async function userCheck(userIdx) {
 async function getInoculation(userIdx) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getInoculationQuery = `
-  select userIdx, userInoculation, userFirstDate, userSecondDate
-  from User where userIdx = ? and status = 1;
+  select userInoculation,
+    date_format(userFirstDate, '%Y.%m.%d') as userFirstDate,
+    date_format(userSecondDate, '%Y.%m.%d') as userSecondDate
+    from User where userIdx = ? and status = 1;
 `;
   const getInoculationParams = [userIdx];
 

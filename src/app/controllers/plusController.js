@@ -38,6 +38,7 @@ exports.getInoculation = async function (req, res) {
       result: getInoculationResult,
     });
   } catch (error) {
+    console.log(error);
     return res.json({
       isSuccess: false,
       code: 2000,
