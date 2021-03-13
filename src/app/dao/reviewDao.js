@@ -435,7 +435,7 @@ async function checkLike(userIdx, reviewIdx) {
   }
 }
 
-//찜 갯수 세기
+//좋아요 갯수 세기
 async function countLike(reviewIdx) {
   const connection = await pool.getConnection(async (conn) => conn);
   try {
@@ -460,6 +460,46 @@ async function countLike(reviewIdx) {
   }
 }
 
+//내가 좋아요 누른 후기
+async function selectMyLikeReview(userIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const selectMyLikeReviewQuery = `
+    select LikeReview.reviewIdx, LikeReview.userIdx, userNickname, userProfileImgLink, reviewContent, vaccineName,
+       (select count(*) from LikeReview where LikeReview.status = 1 and LikeReview.reviewIdx = Review.reviewIdx) as likeReviewCount,
+       (select CASE WHEN LikeReview.status = 1 THEN 1 ELSE 0 END) as likeStatus,
+       case
+           when TIMESTAMPDIFF(MINUTE,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(SECOND,Review.createdAt,now()), '초전')
+           when TIMESTAMPDIFF(HOUR,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(MINUTE,Review.createdAt,now()), '분전')
+           when TIMESTAMPDIFF(DAY,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(HOUR,Review.createdAt,now()), '시간전')
+           when TIMESTAMPDIFF(WEEK,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(DAY,Review.createdAt,now()), '일전')
+           when TIMESTAMPDIFF(MONTH,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(WEEK,Review.createdAt,now()), '주전')
+           when TIMESTAMPDIFF(YEAR,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(MONTH,Review.createdAt,now()), '달전')
+           else concat(TIMESTAMPDIFF(YEAR, Review.createdAt, now()), '년전') end as createdAt
+    from LikeReview
+    inner join User on LikeReview.userIdx = User.userIdx
+    inner join Review on LikeReview.reviewIdx = Review.reviewIdx
+    where LikeReview.userIdx = ? and LikeReview.status = 1
+    order by Review.createdAt desc;
+      `;
+    const selectMyLikeReviewParams = [userIdx];
+    const [selectMyLikeReviewRows] = await connection.query(
+      selectMyLikeReviewQuery,
+      selectMyLikeReviewParams
+    );
+    await connection.commit();
+    connection.release();
+    return selectMyLikeReviewRows;
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "selectMyLike query error",
+    });
+  }
+}
+
 module.exports = {
   userCheck,
   insertReview,
@@ -473,4 +513,5 @@ module.exports = {
   likeReview,
   checkLike,
   countLike,
+  selectMyLikeReview,
 };

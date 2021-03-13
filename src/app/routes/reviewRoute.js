@@ -18,4 +18,6 @@ module.exports = function (app) {
 
   //내가 쓴 글 조회
   app.get("/users/my-review", jwtMiddleware, review.getMyReview);
+  //내가 좋아요 누른 글 조회
+  app.get("/users/my-like", jwtMiddleware, review.getMyLikeReview);
 };

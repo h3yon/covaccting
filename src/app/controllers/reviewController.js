@@ -424,3 +424,44 @@ exports.likeReview = async function (req, res) {
     });
   }
 };
+
+exports.getMyLikeReview = async function (req, res) {
+  const token = req.verifiedToken;
+
+  try {
+    const userCheckResult = await reviewDao.userCheck(token.userIdx);
+    if (userCheckResult.isSuccess == false) return userCheckResult;
+    if (!userCheckResult || userCheckResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "탈퇴하거나 비활성화된 유저입니다",
+      });
+    const getMyLikeReviewResult = await reviewDao.selectMyLikeReview(
+      token.userIdx
+    );
+    if (getMyLikeReviewResult.isSuccess == false) return getMyLikeReviewResult;
+    if (!getMyLikeReviewResult || getMyLikeReviewResult.length < 1) {
+      return res.json({
+        isSuccess: false,
+        code: 2001,
+        message: "좋아요한 후기가 없습니다",
+      });
+    }
+    return res.json({
+      isSuccess: true,
+      code: 1000,
+      userIdx: token.userIdx,
+      message: "좋아요한 후기 조회 성공",
+      result: getMyLikeReviewResult,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      isSuccess: false,
+      code: 2000,
+      userIdx: token.userIdx,
+      message: "좋아요한 후기 조회 실패",
+    });
+  }
+};
