@@ -20,4 +20,15 @@ module.exports = function (app) {
   app.get("/users/my-review", jwtMiddleware, review.getMyReview);
   //내가 좋아요 누른 글 조회
   app.get("/users/my-like", jwtMiddleware, review.getMyLikeReview);
+
+  //댓글작성
+  app.post("/reviews/:reviewIdx/comments", jwtMiddleware, review.postcomments);
+  //댓글조회
+  app.get("/reviews/:reviewIdx/comments", jwtMiddleware, review.getcomments);
+  //댓글삭제
+  app.delete(
+    "/reviews/:reviewIdx/comments",
+    jwtMiddleware,
+    review.deletecomments
+  );
 };

@@ -546,6 +546,58 @@ async function selectMyLikeReview(userIdx) {
   }
 }
 
+async function postcomments(userIdx, reviewIdx, comment) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmycommentQuery = `
+  insert into Comment(userIdx, reviewIdx, comment)
+  values (${userIdx}, ${reviewIdx}, '${comment}');
+`;
+
+  const [Rows] = await connection.query(getmycommentQuery);
+  connection.release();
+
+  return Rows;
+}
+
+async function getcomments(reviewIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmycommentQuery = `
+  select commentIdx, reviewIdx, Comment.userIdx, User.userNickname, comment, date_format(Comment.createdAt, '%Y-%m-%d %H:%i:%s') as createAt
+from Comment, User
+where reviewIdx = ${reviewIdx} && User.userIdx = Comment.userIdx
+order by Comment.createdAt DESC;
+`;
+
+  const [Rows] = await connection.query(getmycommentQuery);
+  connection.release();
+
+  return Rows;
+}
+async function getReview(reviewIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmycommentQuery = `
+  select *
+  from Review
+  where reviewIdx = ${reviewIdx};
+`;
+
+  const [Rows] = await connection.query(getmycommentQuery);
+  connection.release();
+
+  return Rows;
+}
+async function deletecomments(commentIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmycommentQuery = `
+  delete from Comment
+  where commentIdx = ${commentIdx};
+`;
+
+  const [Rows] = await connection.query(getmycommentQuery);
+  connection.release();
+
+  return Rows;
+}
 module.exports = {
   userCheck,
   insertReview,
@@ -560,4 +612,8 @@ module.exports = {
   checkLike,
   countLike,
   selectMyLikeReview,
+  postcomments,
+  getcomments,
+  deletecomments,
+  getReview,
 };
