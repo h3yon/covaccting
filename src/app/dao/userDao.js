@@ -177,6 +177,21 @@ async function patchinoculation(
 
   return Rows;
 }
+// 내가 쓴 댓글 조회
+async function getmycomment(userIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmycommentQuery = `
+  select userIdx, reviewIdx, date_format(createdAt, '%Y-%m-%d %H:%i:%s') as createdAt, comment, commentIdx
+  from Comment
+  where userIdx = ${userIdx}
+  order by createdAt DESC;
+`;
+
+  const [Rows] = await connection.query(getmycommentQuery);
+  connection.release();
+
+  return Rows;
+}
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
@@ -187,4 +202,5 @@ module.exports = {
   getprofile,
   patchprofile,
   patchinoculation,
+  getmycomment,
 };

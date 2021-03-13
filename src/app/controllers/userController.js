@@ -438,3 +438,43 @@ exports.patchinoculation = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+
+// 내가 쓴 댓글 조회
+exports.getmycomment = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const getmycommentRows = await userDao.getmycomment(userIdx);
+    console.log(getmycommentRows.length);
+    if (getmycommentRows.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "내가 쓴 댓글 조회 성공",
+        result: getmycommentRows,
+      });
+    } else if (getmycommentRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2001,
+        message: "조회된 댓글이 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "내가 쓴 댓글 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
