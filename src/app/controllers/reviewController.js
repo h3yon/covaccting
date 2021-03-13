@@ -367,8 +367,32 @@ exports.likeReview = async function (req, res) {
     checkLikeResult = await reviewDao.checkLike(token.userIdx, reviewIdx);
     if (checkLikeResult.isSuccess == false) return checkLikeResult;
 
-    console.log(checkLikeResult, checkLikeResult[0].status);
+    console.log("checkLikeResult", checkLikeResult);
 
+    if (!checkLikeResult || checkLikeResult.length < 1) {
+      //정보 없을 때 추가
+      const likeResult = await reviewDao.likeReview(
+        token.userIdx,
+        reviewIdx,
+        1,
+        0
+      );
+      if (likeResult.isSuccess == false) return res.json(likeResult);
+
+      const countLikeResult = await reviewDao.countLike(reviewIdx);
+      if (countLikeResult.isSuccess == false) return res.json(countLikeResult);
+      console.log(countLikeResult);
+      var likeMessage = "좋아요 추가";
+
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        userIdx: token.userIdx,
+        message: "좋아요 추가/취소 성공",
+        likeMessage: likeMessage,
+        likeCount: countLikeResult[0].likeCount,
+      });
+    }
     if (checkLikeResult[0].status == 1) {
       //like 취소할 때: 정보가 없을 때, 1일 때
       const likeResult = await reviewDao.likeReview(
@@ -416,6 +440,7 @@ exports.likeReview = async function (req, res) {
       });
     }
   } catch (error) {
+    console.log(error);
     return res.json({
       isSuccess: false,
       code: 2000,
