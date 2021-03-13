@@ -13,6 +13,9 @@ module.exports = function (app) {
   //후기 삭제
   app.patch("/reviews/:reviewIdx/delete", jwtMiddleware, review.deleteReview);
 
+  //좋아요 추가/취소
+  app.post("/reviews/:reviewIdx/like", jwtMiddleware, review.likeReview);
+
   //내가 쓴 글 조회
   app.get("/users/my-review", jwtMiddleware, review.getMyReview);
 };

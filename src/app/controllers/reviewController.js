@@ -334,3 +334,93 @@ exports.getMyReview = async function (req, res) {
     });
   }
 };
+
+exports.likeReview = async function (req, res) {
+  const token = req.verifiedToken;
+  const reviewIdx = req.params.reviewIdx;
+
+  if (!reviewIdx)
+    return res.json({
+      isSuccess: false,
+      code: 2002,
+      message: "리뷰 인덱스를 입력해주세요",
+    });
+
+  try {
+    const userCheckResult = await reviewDao.userCheck(token.userIdx);
+    if (userCheckResult.isSuccess == false) return userCheckResult;
+    if (!userCheckResult || userCheckResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "탈퇴하거나 비활성화된 유저입니다",
+      });
+    const checkReviewResult = await reviewDao.checkReview(reviewIdx);
+    if (checkReviewResult.isSuccess == false) return checkReviewResult;
+    if (!checkReviewResult || checkReviewResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2003,
+        message: "리뷰가 존재하지 않습니다",
+      });
+
+    checkLikeResult = await reviewDao.checkLike(token.userIdx, reviewIdx);
+    if (checkLikeResult.isSuccess == false) return checkLikeResult;
+
+    console.log(checkLikeResult, checkLikeResult[0].status);
+
+    if (checkLikeResult[0].status == 1) {
+      //like 취소할 때: 정보가 없을 때, 1일 때
+      const likeResult = await reviewDao.likeReview(
+        token.userIdx,
+        reviewIdx,
+        1,
+        0
+      );
+      if (likeResult.isSuccess == false) return res.json(likeResult);
+
+      const countLikeResult = await reviewDao.countLike(reviewIdx);
+      if (countLikeResult.isSuccess == false) return res.json(countLikeResult);
+      var likeMessage = "좋아요 취소";
+
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        userIdx: token.userIdx,
+        message: "좋아요 추가/취소 성공",
+        likeMessage: likeMessage,
+        likeCount: countLikeResult[0].likeCount,
+      });
+    } else {
+      //like 추가할 때: 정보가 없을 때, 0일 때
+      const likeResult = await reviewDao.likeReview(
+        token.userIdx,
+        reviewIdx,
+        0,
+        1
+      );
+      if (likeResult.isSuccess == false) return res.json(likeResult);
+
+      const countLikeResult = await reviewDao.countLike(reviewIdx);
+      if (countLikeResult.isSuccess == false) return res.json(countLikeResult);
+      console.log(countLikeResult);
+      var likeMessage = "좋아요 추가";
+
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        userIdx: token.userIdx,
+        message: "좋아요 추가/취소 성공",
+        likeMessage: likeMessage,
+        likeCount: countLikeResult[0].likeCount,
+      });
+    }
+  } catch (error) {
+    return res.json({
+      isSuccess: false,
+      code: 2000,
+      userIdx: token.userIdx,
+      message: "좋아요 추가/취소 실패",
+    });
+  }
+};

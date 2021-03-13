@@ -389,6 +389,77 @@ async function selectMyReview(userIdx) {
   }
 }
 
+// 후기 좋아요
+async function likeReview(userIdx, reviewIdx, status, status1) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const likeReviewQuery = `
+    INSERT INTO LikeReview(userIdx, reviewIdx, status) VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE status = ?;
+                  `;
+    const likeReviewParams = [userIdx, reviewIdx, status, status1];
+    await connection.query(likeReviewQuery, likeReviewParams);
+    connection.release();
+    return { isSuccess: true };
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "likeReview query error",
+    });
+  }
+}
+
+// 좋아요 체크
+async function checkLike(userIdx, reviewIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const checkLikeQuery = `
+      select userIdx, reviewIdx, status from LikeReview where userIdx = ? and reviewIdx = ?;
+                  `;
+    const checkLikeParams = [userIdx, reviewIdx];
+    const [checkLikeRows] = await connection.query(
+      checkLikeQuery,
+      checkLikeParams
+    );
+    connection.release();
+    return checkLikeRows;
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "checkLike query error",
+    });
+  }
+}
+
+//찜 갯수 세기
+async function countLike(reviewIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const countLikeQuery = `
+          select count(*) as likeCount from LikeReview where reviewIdx = ? and status = 1;
+      `;
+    const countLikeParams = [reviewIdx];
+    const [countLikeRows] = await connection.query(
+      countLikeQuery,
+      countLikeParams
+    );
+    await connection.commit();
+    connection.release();
+    return countLikeRows;
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "countLike query error",
+    });
+  }
+}
+
 module.exports = {
   userCheck,
   insertReview,
@@ -399,4 +470,7 @@ module.exports = {
   updateReview,
   deleteReview,
   selectMyReview,
+  likeReview,
+  checkLike,
+  countLike,
 };
