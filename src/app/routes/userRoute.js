@@ -14,5 +14,7 @@ module.exports = function (app) {
   app.get("/users", jwtMiddleware, user.getprofile);
   //프로필 관리 수정
   app.patch("/users", jwtMiddleware, user.patchprofile);
+  //내 접종기록 수정
+  app.patch("/users/inoculation", jwtMiddleware, user.patchinoculation);
   //   app.get("/check", jwtMiddleware, user.check);
 };
