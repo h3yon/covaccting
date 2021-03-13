@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const regexEmail = require("regex-email");
 const crypto = require("crypto");
 const secret_config = require("../../../config/secret");
-
+const userDao = require("../dao/userDao");
 const reviewDao = require("../dao/reviewDao");
 const { constants } = require("buffer");
 
@@ -462,6 +462,163 @@ exports.getMyLikeReview = async function (req, res) {
       code: 2000,
       userIdx: token.userIdx,
       message: "좋아요한 후기 조회 실패",
+    });
+  }
+};
+//댓글작성
+exports.postcomments = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+    const { comment } = req.body;
+    const reviewIdx = req.params.reviewIdx;
+
+    if (!comment) {
+      return res.json({
+        isSuccess: false,
+        code: 2030,
+        message: "댓글 내용을 입력하세요.",
+      });
+    }
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const getReview = await reviewDao.getReview(reviewIdx);
+    if (getReview.length < 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2031,
+        message: "리뷰가 없습니다.",
+      });
+    }
+
+    const postcomments = await reviewDao.postcomments(
+      userIdx,
+      reviewIdx,
+      comment
+    );
+
+    if (postcomments.affectedRows === 1) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "댓글 작성 성공",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "댓글 작성 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+//댓글조회
+exports.getcomments = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+    const { commentIdx } = req.body;
+    const reviewIdx = req.params.reviewIdx;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+    const getReview = await reviewDao.getReview(reviewIdx);
+    if (getReview.length < 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2031,
+        message: "리뷰가 없습니다.",
+      });
+    }
+
+    const getcommentsResult = await reviewDao.getcomments(reviewIdx);
+
+    if (getcommentsResult.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "댓글조회 성공",
+        result: getcommentsResult,
+      });
+    } else if (getcommentsResult.length == 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2032,
+        message: "댓글이 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "댓글조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+//댓글삭제
+exports.deletecomments = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+    const { commentIdx, userIdx1 } = req.body;
+    const reviewIdx = req.params.reviewIdx;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+    const getReview = await reviewDao.getReview(reviewIdx);
+    if (getReview.length < 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2031,
+        message: "리뷰가 없습니다.",
+      });
+    }
+
+    if (userIdx1 !== userIdx) {
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "본인만 삭제가 가능합니다.",
+      });
+    }
+
+    const deletecommentsResult = await reviewDao.deletecomments(commentIdx);
+
+    if (deletecommentsResult.affectedRows === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2001,
+        message: "삭제할 댓글이 없습니다.",
+      });
+    } else if (deletecommentsResult.affectedRows === 1)
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "댓글삭제 성공",
+      });
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      isSuccess: false,
+      code: 2000,
+      message: "댓글삭제 실패",
     });
   }
 };
