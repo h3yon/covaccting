@@ -31,4 +31,6 @@ module.exports = function (app) {
     jwtMiddleware,
     review.deletecomments
   );
+  //정보조회
+  app.get("/Informations", jwtMiddleware, review.getInformation);
 };

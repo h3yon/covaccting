@@ -598,6 +598,19 @@ async function deletecomments(commentIdx) {
 
   return Rows;
 }
+async function getInformation(InformationIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getmycommentQuery = `
+select InformationIdx, InformationName, InformationUrl
+from Information
+where InformationIdx = ${InformationIdx}
+`;
+
+  const [Rows] = await connection.query(getmycommentQuery);
+  connection.release();
+
+  return Rows;
+}
 module.exports = {
   userCheck,
   insertReview,
@@ -616,4 +629,5 @@ module.exports = {
   getcomments,
   deletecomments,
   getReview,
+  getInformation,
 };

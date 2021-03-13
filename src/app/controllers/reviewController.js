@@ -616,7 +616,7 @@ exports.deletecomments = async function (req, res) {
       });
     }
 
-    if (userIdx1 !== userIdx) {
+    if (userIdx1 !== userIdx || userIdx.length == 0) {
       return res.json({
         isSuccess: false,
         code: 2100,
@@ -645,5 +645,46 @@ exports.deletecomments = async function (req, res) {
       code: 2000,
       message: "댓글삭제 실패",
     });
+  }
+};
+//정보조회
+exports.getInformation = async function (req, res) {
+  try {
+    var userIdx = req.verifiedToken.userIdx;
+    const InformationIdx = req.query.Information;
+
+    const userRows = await userDao.getuser(userIdx);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+    console.log(InformationIdx);
+
+    const getInformation = await reviewDao.getInformation(InformationIdx);
+    console.log(getInformation);
+    if (getInformation.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "정보 조회 성공",
+        result: getInformation,
+      });
+    } else if (getInformation.length == 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2032,
+        message: "정보가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "정보 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
   }
 };
