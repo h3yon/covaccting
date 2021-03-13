@@ -10,6 +10,6 @@ module.exports = function (app) {
   app.get("/reviews/:reviewIdx", jwtMiddleware, review.getDetailReview);
   //후기 수정
   app.patch("/reviews/:reviewIdx", jwtMiddleware, review.changeReview);
-  // //후기 삭제
-  // app.patch("/reviews/:reviewIdx/delete", jwtMiddleware, review.deleteReview);
+  //후기 삭제
+  app.patch("/reviews/:reviewIdx/delete", jwtMiddleware, review.deleteReview);
 };

@@ -325,6 +325,29 @@ async function checkReview(reviewIdx) {
   }
 }
 
+// 후기 삭제
+async function deleteReview(reviewIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const deleteReviewQuery = `
+    update Review set
+    status = 0,
+    updatedAt = now() where reviewIdx = ? and status = 1;
+                  `;
+    const deleteReviewParams = [reviewIdx];
+    await connection.query(deleteReviewQuery, deleteReviewParams);
+    connection.release();
+    return { isSuccess: true };
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "deleteReview query error",
+    });
+  }
+}
+
 module.exports = {
   userCheck,
   insertReview,
@@ -333,4 +356,5 @@ module.exports = {
   selectDetailReview,
   checkReview,
   updateReview,
+  deleteReview,
 };

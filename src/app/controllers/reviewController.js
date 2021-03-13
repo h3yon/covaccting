@@ -216,7 +216,6 @@ exports.changeReview = async function (req, res) {
         code: 2003,
         message: "리뷰가 존재하지 않습니다",
       });
-    console.log(checkReviewResult, token.userIdx);
     if (checkReviewResult[0].userIdx != token.userIdx) {
       return res.json({
         isSuccess: false,
@@ -242,6 +241,59 @@ exports.changeReview = async function (req, res) {
       code: 2000,
       userIdx: token.userIdx,
       message: "리뷰 수정 실패",
+    });
+  }
+};
+
+exports.deleteReview = async function (req, res) {
+  const token = req.verifiedToken;
+  const reviewIdx = req.params.reviewIdx;
+
+  if (!reviewIdx)
+    return res.json({
+      isSuccess: false,
+      code: 2002,
+      message: "후기 인덱스를 입력해주세요",
+    });
+
+  try {
+    const userCheckResult = await reviewDao.userCheck(token.userIdx);
+    if (userCheckResult.isSuccess == false) return userCheckResult;
+    if (!userCheckResult || userCheckResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "탈퇴하거나 비활성화된 유저입니다",
+      });
+    const checkReviewResult = await reviewDao.checkReview(reviewIdx);
+    if (checkReviewResult.isSuccess == false) return checkReviewResult;
+    if (!checkReviewResult || checkReviewResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2003,
+        message: "리뷰가 존재하지 않습니다",
+      });
+    if (checkReviewResult[0].userIdx != token.userIdx) {
+      return res.json({
+        isSuccess: false,
+        code: 2004,
+        message: "권한이 없습니다",
+      });
+    }
+    const deleteReviewResult = await reviewDao.deleteReview(reviewIdx);
+    if (deleteReviewResult.isSuccess == false) return deleteReviewResult;
+    return res.json({
+      isSuccess: true,
+      code: 1000,
+      userIdx: token.userIdx,
+      message: "후기 삭제 성공",
+    });
+  } catch (error) {
+    return res.json({
+      isSuccess: false,
+      code: 2000,
+      userIdx: token.userIdx,
+      message: "후기 삭제 실패",
     });
   }
 };
