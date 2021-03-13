@@ -348,6 +348,47 @@ async function deleteReview(reviewIdx) {
   }
 }
 
+// 나의 후기 조회
+async function selectMyReview(userIdx) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const selectMyReviewQuery = `
+    select Review.reviewIdx, Review.userIdx,
+       User.userNickname, User.userProfileImgLink, reviewContent, vaccineName,
+       (select count(*) from LikeReview where LikeReview.status = 1 and LikeReview.reviewIdx = Review.reviewIdx) as likeReviewCount,
+       (select CASE WHEN LikeReview.status = 1 THEN 1 ELSE 0 END) as likeStatus,
+       case
+           when TIMESTAMPDIFF(MINUTE,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(SECOND,Review.createdAt,now()), '초전')
+           when TIMESTAMPDIFF(HOUR,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(MINUTE,Review.createdAt,now()), '분전')
+           when TIMESTAMPDIFF(DAY,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(HOUR,Review.createdAt,now()), '시간전')
+           when TIMESTAMPDIFF(WEEK,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(DAY,Review.createdAt,now()), '일전')
+           when TIMESTAMPDIFF(MONTH,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(WEEK,Review.createdAt,now()), '주전')
+           when TIMESTAMPDIFF(YEAR,Review.createdAt,now()) < 1 then concat(TIMESTAMPDIFF(MONTH,Review.createdAt,now()), '달전')
+           else concat(TIMESTAMPDIFF(YEAR, Review.createdAt, now()), '년전') end as createdAt
+    from Review
+            left join User on Review.userIdx = User.userIdx
+            left join LikeReview on LikeReview.userIdx = ? and Review.reviewIdx = LikeReview.reviewIdx
+    where Review.userIdx = ? and Review.status = 1 and User.status = 1
+    group by Review.reviewIdx, Review.createdAt
+    order by Review.createdAt desc;
+                  `;
+    const selectMyReviewParams = [userIdx, userIdx];
+    const [selectMyReviewRows] = await connection.query(
+      selectMyReviewQuery,
+      selectMyReviewParams
+    );
+    connection.release();
+    return selectMyReviewRows;
+  } catch (err) {
+    connection.release();
+    return res.json({
+      isSuccess: false,
+      code: 4000,
+      message: "selectMyReview query error",
+    });
+  }
+}
+
 module.exports = {
   userCheck,
   insertReview,
@@ -357,4 +398,5 @@ module.exports = {
   checkReview,
   updateReview,
   deleteReview,
+  selectMyReview,
 };

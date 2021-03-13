@@ -297,3 +297,40 @@ exports.deleteReview = async function (req, res) {
     });
   }
 };
+
+exports.getMyReview = async function (req, res) {
+  const token = req.verifiedToken;
+
+  try {
+    const userCheckResult = await reviewDao.userCheck(token.userIdx);
+    if (userCheckResult.isSuccess == false) return userCheckResult;
+    if (!userCheckResult || userCheckResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "탈퇴하거나 비활성화된 유저입니다",
+      });
+    const getMyReviewResult = await reviewDao.selectMyReview(token.userIdx);
+    if (getMyReviewResult.isSuccess == false) return getMyReviewResult;
+    if (!getMyReviewResult || getMyReviewResult.length < 1)
+      return res.json({
+        isSuccess: false,
+        code: 2001,
+        message: "작성한 후기가 없습니다",
+      });
+    return res.json({
+      isSuccess: true,
+      code: 1000,
+      userIdx: token.userIdx,
+      message: "작성한 후기 조회 성공",
+      result: getMyReviewResult,
+    });
+  } catch (error) {
+    return res.json({
+      isSuccess: false,
+      code: 2000,
+      userIdx: token.userIdx,
+      message: "작성한 후기 조회 실패",
+    });
+  }
+};

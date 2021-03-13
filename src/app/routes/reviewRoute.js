@@ -12,4 +12,7 @@ module.exports = function (app) {
   app.patch("/reviews/:reviewIdx", jwtMiddleware, review.changeReview);
   //후기 삭제
   app.patch("/reviews/:reviewIdx/delete", jwtMiddleware, review.deleteReview);
+
+  //내가 쓴 글 조회
+  app.get("/users/my-review", jwtMiddleware, review.getMyReview);
 };
