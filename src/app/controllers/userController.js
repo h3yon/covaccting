@@ -471,7 +471,7 @@ exports.getmycomment = async function (req, res) {
       return res.json({
         isSuccess: false,
         code: 2000,
-        message: "내가 쓴 댓글 조회 실패",
+        message: "내가 쓴 댓글 조회 실패.",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
