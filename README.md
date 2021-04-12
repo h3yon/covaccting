@@ -22,7 +22,6 @@
 3. 더 보기 편한 정보 추구
                                   
 ### Screenshot
-<div></div>
 ![해커톤 발표자료-06](https://user-images.githubusercontent.com/46602874/114385626-31235e80-9bcb-11eb-979a-4f763e92237f.jpg)
 ![해커톤 발표자료-08](https://user-images.githubusercontent.com/46602874/114385638-354f7c00-9bcb-11eb-871b-c73d9499fed3.jpg)
 ![해커톤 발표자료-09](https://user-images.githubusercontent.com/46602874/114385645-38e30300-9bcb-11eb-9b4c-4eb8b2b89dc5.jpg)
