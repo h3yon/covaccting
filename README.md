@@ -10,18 +10,19 @@
 
 ### Target
 <div></div>
-💉 백신 접종을 ‘앞두고’ 있는
-💪 백신 접종을 ‘안전하게’ 마친
-📝 백신의 ‘정보’를 알고 싶은
-접종 대상자들을 위해
-
+💉 백신 접종을 ‘앞두고’ 있는         
+💪 백신 접종을 ‘안전하게’ 마친         
+📝 백신의 ‘정보’를 알고 싶은          
+접종 대상자들을 위해         
+          
 ### Development Direction
+<div></div>
 1. 코로나 관련, 또는 다른 질병에 관한 백신 정보 제공
 2. 백신 접종이 가능한 병원 위치 정보 추가
 3. 더 보기 편한 정보 추구
-
-
+                                  
 ### Screenshot
+<div></div>
 ![해커톤 발표자료-06](https://user-images.githubusercontent.com/46602874/114385626-31235e80-9bcb-11eb-979a-4f763e92237f.jpg)
 ![해커톤 발표자료-08](https://user-images.githubusercontent.com/46602874/114385638-354f7c00-9bcb-11eb-871b-c73d9499fed3.jpg)
 ![해커톤 발표자료-09](https://user-images.githubusercontent.com/46602874/114385645-38e30300-9bcb-11eb-9b4c-4eb8b2b89dc5.jpg)
